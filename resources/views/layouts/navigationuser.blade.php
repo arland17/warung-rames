@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('user.order')" :active="request()->routeIs('user.order')">
                         {{ __('Order') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('order.details')" :active="request()->routeIs('order.details')">
+                        {{ __('History') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -32,10 +35,12 @@
                                 <img src="{{ asset('img/icon-cart.png') }}" alt="Cart" />
                             </div>
                             <!-- Red Circle Notification -->
-                            <div
-                                class="absolute top-2 right-0 mr-1 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                                {{ count((array) session('cart')) }}
-                            </div>
+                            @if ($cartItemCount > 0)
+                                <div
+                                    class="absolute top-2 right-0 mr-1 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                                    {{ $cartItemCount }} <!-- Display the cart item count -->
+                                </div>
+                            @endif
                         </button>
                     </x-slot>
 
@@ -48,31 +53,47 @@
 
                             <!-- Cart Items -->
                             <div class="max-h-60 overflow-y-auto">
-                                @forelse (session('cart', []) as $product_name => $items)
+                                @forelse ($cartItems as $item)
                                     <div class="flex items-center justify-between p-4 border-b">
-                                        <!-- Minus Button -->
-                                        <a href="{{ route('cart.decrease', $product_name) }}"
-                                            class="w-6 h-6 bg-gray-200 rounded text-black font-bold hover:bg-gray-300 flex items-center justify-center">-</a>
+                                        <!-- Decrease Button -->
+                                        <form action="{{ route('cart.decrease', $item->carts_id) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="w-6 h-6 bg-gray-200 rounded text-black font-bold hover:bg-gray-300 flex items-center justify-center">
+                                                -
+                                            </button>
+                                        </form>
+
                                         <!-- Quantity -->
-                                        <span class="text-sm font-medium">{{ $items['quantity'] }}</span>
-                                        <!-- Plus Button -->
-                                        <a href="{{ route('cart.increase', $product_name) }}"
-                                            class="w-6 h-6 bg-gray-200 rounded text-black font-bold hover:bg-gray-300 flex items-center justify-center">+</a>
+                                        <span class="text-sm font-medium">{{ $item->quantity }}</span>
+
+                                        <!-- Increase Button -->
+                                        <form action="{{ route('cart.increase', $item->carts_id) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="w-6 h-6 bg-gray-200 rounded text-black font-bold hover:bg-gray-300 flex items-center justify-center">
+                                                +
+                                            </button>
+                                        </form>
+
 
                                         <!-- Product Image and Info -->
                                         <div class="flex items-center">
-                                            <img src="{{ isset($items['image']) ? asset('storage/' . $items['image']) : 'https://via.placeholder.com/300' }}"
+                                            <img src="{{ isset($item->image) ? asset('storage/' . $item->image) : 'https://via.placeholder.com/300' }}"
                                                 alt="Item" class="w-12 h-12 rounded" />
                                             <div class="ml-3">
-                                                <p class="font-medium">
-                                                    {{ $items['product_name'] ?? 'Produk Tidak Diketahui' }}</p>
-                                                <p class="text-sm text-gray-500">Qty: {{ $items['quantity'] }}</p>
+                                                <p class="font-medium">{{ $item->product_name }}</p>
+                                                <p class="text-sm text-gray-500">Qty: {{ $item->quantity }}</p>
                                             </div>
                                         </div>
 
                                         <!-- Price -->
                                         <p class="text-sm font-medium">
-                                            Rp{{ number_format($items['price'], 0, ',', '.') }}
+                                            Rp{{ number_format($item->price, 0, ',', '.') }}
                                         </p>
                                     </div>
                                 @empty
@@ -81,11 +102,6 @@
                             </div>
 
                             <!-- Total Harga -->
-                            @php
-                                $totalPrice = collect(session('cart', []))->sum(function ($item) {
-                                    return $item['price'] * $item['quantity'];
-                                });
-                            @endphp
                             @if ($totalPrice > 0)
                                 <div class="p-4 flex justify-between items-center bg-gray-100">
                                     <p class="font-bold text-lg">Total Harga</p>
@@ -93,17 +109,18 @@
                                 </div>
 
                                 <!-- Checkout Button -->
-                                <div class="p-4">
-                                    <a href=""
+                                <form action="{{ route('order') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="carts_id" value="{{ $item->carts_id }}">
+                                    <button type="submit"
                                         class="block text-center w-full bg-yellow-400 text-black font-semibold py-2 rounded hover:bg-yellow-500 transition">
                                         Lanjutkan Untuk Pembayaran
-                                    </a>
-                                </div>
+                                    </button>
+                                </form>
                             @endif
                         </div>
                     </x-slot>
                 </x-dropdown>
-
 
                 <!-- Profile Dropdown -->
                 <x-dropdown align="right" width="48">

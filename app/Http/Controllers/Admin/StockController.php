@@ -30,22 +30,22 @@ class StockController extends Controller
         return view('user.dashboard', compact('stocksBungkus', 'stocksPaket'));
     }
 
-    // Method untuk menghapus produk dari keranjang
-    public function removeFromCart(Request $request, $id)
-    {
-        // Ambil keranjang dari session
-        $cart = session()->get('cart', []);
+    // // Method untuk menghapus produk dari keranjang
+    // public function removeFromCart(Request $request, $stocks_id)
+    // {
+    //     // Ambil keranjang dari session
+    //     $cart = session()->get('cart', []);
 
-        // Hapus item dari keranjang
-        if (isset($cart[$id])) {
-            unset($cart[$id]);
-        }
+    //     // Hapus item dari keranjang
+    //     if (isset($cart[$stocks_id])) {
+    //         unset($cart[$stocks_id]);
+    //     }
 
-        // Simpan kembali keranjang ke session
-        session()->put('cart', $cart);
+    //     // Simpan kembali keranjang ke session
+    //     session()->put('cart', $cart);
 
-        return response()->json(['message' => 'Item removed from cart']);
-    }
+    //     return response()->json(['message' => 'Item removed from cart']);
+    // }
 
     // Method untuk menyimpan data produk
     public function store(Request $request)
@@ -84,10 +84,10 @@ class StockController extends Controller
     }
 
     // Method untuk menghapus data produk
-    public function destroy($id)
+    public function destroy($stocks_id)
     {
-        // Cari produk berdasarkan ID
-        $stock = Stock::findOrFail($id);
+        // Cari produk berdasarkan ID (menggunakan primary key yang baru)
+        $stock = Stock::findOrFail($stocks_id);
 
         // Hapus gambar produk jika ada
         if ($stock->image && Storage::exists('public/' . $stock->image)) {

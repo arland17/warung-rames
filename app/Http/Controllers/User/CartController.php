@@ -2,75 +2,115 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\Cart;
 use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 
 class CartController extends Controller
 {
-    // Method untuk menambahkan produk ke keranjang
-    public function addToCart( $id)
+    public function addToCart($stocks_id)
     {
-        // Cari produk berdasarkan ID
-        $stock = Stock::findOrFail($id);
+        // Cari produk berdasarkan ID stok
+        $stock = Stock::where('stocks_id', $stocks_id)->firstOrFail();
 
-        // Ambil keranjang yang ada dari session  
-        $cart = session()->get('cart', []);
+        // Ambil ID pengguna yang sedang login
+        $userId = Auth::id();
 
-        // Jika produk sudah ada di keranjang, tambahkan kuantitasnya
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity']++;
+        // Cek apakah produk sudah ada di keranjang
+        $cartItem = Cart::where('users_id', $userId)
+                        ->where('product_name', $stock->product_name)
+                        ->first();
+
+        if ($cartItem) {
+            // Jika produk sudah ada di keranjang, tambahkan kuantitas
+            $cartItem->quantity++;
+            $cartItem->total_price = $cartItem->calculateTotalPrice(); // Hitung total price
+            $cartItem->save();
         } else {
-            // Jika produk belum ada di keranjang, tambahkan produk baru
-            $cart[$id] = [
+            // Jika produk belum ada, tambahkan produk baru ke keranjang
+            Cart::create([
+                'users_id' => $userId,
                 'product_name' => $stock->product_name,
                 'price' => $stock->price,
                 'quantity' => 1,
                 'image' => $stock->image,
-            ];
+                'total_price' => $stock->price * 1, 
+            ]);
         }
 
-        // Simpan keranjang ke session
-        session()->put('cart', $cart);
-
-         return redirect()->back()->with('success', 'Item added to cart!');
+        return redirect()->back()->with('success', 'Item berhasil ditambahkan ke keranjang!');
     }
 
-    public function increaseQuantity($id)
+    public function viewCart()
     {
-        // Ambil keranjang dari session
-        $cart = session()->get('cart', []);
+        // Ambil ID pengguna yang sedang login
+        $userId = Auth::id();
 
-        // Tambahkan kuantitas jika produk ada
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity']++;
-        }
+        // Ambil semua item keranjang untuk pengguna saat ini
+        $cartItems = Cart::where('users_id', $userId)->get();
 
-        // Simpan kembali keranjang ke session
-        session()->put('cart', $cart);
+        // Hitung total harga
+        $totalPrice = $cartItems->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
-        return redirect()->back()->with('success', 'Quantity increased!');
+        // Kirim data ke view
+        return view('layouts.navigationuser', compact('cartItems', 'totalPrice'));
     }
 
-    public function decreaseQuantity($id)
+    public function showCount()
     {
-        // Ambil keranjang dari session
-        $cart = session()->get('cart', []);
+        // Get the count of items in the user's cart
+        $userId = Auth::id();
+        $cartItemCount = Cart::where('users_id', $userId)->count(); // Count of items in the cart
 
-        // Kurangi kuantitas jika produk ada dan lebih dari 1
-        if (isset($cart[$id])) {
-            if ($cart[$id]['quantity'] > 1) {
-                $cart[$id]['quantity']--;
+        return view('layouts.navigationuser', compact('cartItemCount'));
+    }
+
+    public function decreaseQuantity($carts_id)
+    {
+        // Ambil ID pengguna yang sedang login
+        $userId = Auth::id();
+
+        // Cari item keranjang berdasarkan ID pengguna dan ID keranjang
+        $cartItem = Cart::where('users_id', $userId)
+                        ->where('carts_id', $carts_id)
+                        ->first();
+
+        if ($cartItem) {
+            // Jika kuantitas lebih dari 1, kurangi 1
+            if ($cartItem->quantity > 1) {
+                $cartItem->quantity--;
+                $cartItem->total_price = $cartItem->quantity * $cartItem->price; // Update total price
+                $cartItem->save();
             } else {
-                // Hapus item jika kuantitas menjadi 0
-                unset($cart[$id]);
+                // Jika kuantitas 1, hapus item dari keranjang
+                $cartItem->delete();
             }
         }
 
-        // Simpan kembali keranjang ke session
-        session()->put('cart', $cart);
+        return redirect()->back()->with('success', 'Item kuantitas berhasil dikurangi!');
+    }
 
-        return redirect()->back()->with('success', 'Quantity decreased!');
+    public function increaseQuantity($carts_id)
+    {
+        // Ambil ID pengguna yang sedang login
+        $userId = Auth::id();
+
+        // Cari item keranjang berdasarkan ID pengguna dan ID keranjang
+        $cartItem = Cart::where('users_id', $userId)
+                        ->where('carts_id', $carts_id)
+                        ->first();
+
+        if ($cartItem) {
+            // Tambah kuantitas 1
+            $cartItem->quantity++;
+            $cartItem->total_price = $cartItem->quantity * $cartItem->price; // Update total price
+            $cartItem->save();
+        }
+
+        return redirect()->back()->with('success', 'Item kuantitas berhasil ditambahkan!');
     }
 }
-

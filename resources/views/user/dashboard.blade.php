@@ -85,12 +85,15 @@
                                                 {{ number_format($stock->price, 0, ',', '.') }}
                                             </span>
 
-                                            <a href="{{ route('add.to.cart', $stock->id) }}"
-                                                class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
-                                                +
-                                            </a>
-
+                                            <form action="{{ route('add.to.cart', $stock->stocks_id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                                                    +
+                                                </button>
+                                            </form>
                                         </div>
+
                                     </div>
                                 </div>
                             @endforeach
@@ -123,11 +126,17 @@
                                                 <span class="text-yellow-500 font-bold text-lg">
                                                     {{ number_format($stock->price, 0, ',', '.') }}
                                                 </span>
-                                                <a href="{{ route('add.to.cart', $stock->id) }}"
-                                                    class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
-                                                    +
-                                                </a>
+
+                                                <form action="{{ route('add.to.cart', $stock->stocks_id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                                                        +
+                                                    </button>
+                                                </form>
                                             </div>
+
                                         </div>
                                     </div>
                                 @endforeach

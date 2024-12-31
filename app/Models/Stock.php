@@ -9,6 +9,13 @@ class Stock extends Model
 {
     use HasFactory;
 
+    // Menentukan primary key yang digunakan
+    protected $primaryKey = 'stocks_id';
+
+    // Jika nama tabel tidak sesuai dengan konvensi, tentukan nama tabel
+    protected $table = 'stocks';
+
+    // Menentukan kolom yang bisa diisi secara massal (mass assignment)
     protected $fillable = [
         'product_name',
         'category',
@@ -18,18 +25,6 @@ class Stock extends Model
         'price',
         'image',
     ];
-
-    // Tentukan tipe data untuk kolom 'category' (ENUM)
-    protected $casts = [
-        'category' => 'string',
-    ];
-
-    // Jika Anda ingin mengakses kategori dengan lebih mudah
-    const CATEGORIES = ['Paket', 'Bungkus'];
-
-    // Method untuk mendapatkan kategori sebagai array
-    public static function categories()
-    {
-        return self::CATEGORIES;
-    }
+    // Jika Anda tidak ingin menggunakan timestamp default 'created_at' dan 'updated_at', bisa menambahkan:
+    // public $timestamps = false;
 }

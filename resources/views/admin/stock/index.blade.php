@@ -71,7 +71,7 @@
                                     <td class="px-4 py-3">{{ $stock->price }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center space-x-2">
-                                            {{-- <a href="{{ route('admin.stock', $stock->id) }}">
+                                            {{-- <a href="{{ route('admin.stock', $stock->stocks_id) }}">
                                                 <button type="button" data-drawer-target="drawer-update-product"
                                                     data-drawer-show="drawer-update-product"
                                                     aria-controls="drawer-update-product"
@@ -87,7 +87,7 @@
                                                     Edit
                                                 </button>
                                             </a> --}}
-                                            <button type="button" data-id="{{ $stock->id }}"
+                                            <button type="button" data-id="{{ $stock->stocks_id }}"
                                                 data-modal-target="delete-modal" data-modal-toggle="delete-modal"
                                                 class="flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 -ml-0.5"
@@ -270,14 +270,14 @@
 
     <!-- Delete Modal -->
     @foreach ($stocks as $stock)
-        <div id="delete-modal-{{ $stock->id }}" tabindex="-1"
+        <div id="delete-modal-{{ $stock->stocks_id }}" tabindex="-1"
             class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto bg-black bg-opacity-50">
             <div class="relative w-full h-auto max-w-md max-h-full">
                 <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <!-- Close Button -->
                     <button type="button"
                         class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
-                        data-modal-toggle="delete-modal-{{ $stock->id }}">
+                        data-modal-toggle="delete-modal-{{ $stock->stocks_id }}">
                         <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
@@ -298,8 +298,8 @@
                             Are you sure you want to delete this product?
                         </h3>
                         <!-- Form untuk Delete -->
-                        <form id="delete-product-form-{{ $stock->id }}"
-                            action="{{ route('admin.stock.delete', $stock->id) }}" method="POST"
+                        <form id="delete-product-form-{{ $stock->stocks_id }}"
+                            action="{{ route('admin.stock.delete', $stock->stocks_id) }}" method="POST"
                             style="display:inline;">
                             @csrf
                             @method('DELETE')
@@ -310,7 +310,7 @@
                         </form>
                         <button type="button"
                             class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                            data-modal-toggle="delete-modal-{{ $stock->id }}">
+                            data-modal-toggle="delete-modal-{{ $stock->stocks_id }}">
                             No, cancel
                         </button>
                     </div>
