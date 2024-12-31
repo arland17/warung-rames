@@ -30,23 +30,6 @@ class StockController extends Controller
         return view('user.dashboard', compact('stocksBungkus', 'stocksPaket'));
     }
 
-    // // Method untuk menghapus produk dari keranjang
-    // public function removeFromCart(Request $request, $stocks_id)
-    // {
-    //     // Ambil keranjang dari session
-    //     $cart = session()->get('cart', []);
-
-    //     // Hapus item dari keranjang
-    //     if (isset($cart[$stocks_id])) {
-    //         unset($cart[$stocks_id]);
-    //     }
-
-    //     // Simpan kembali keranjang ke session
-    //     session()->put('cart', $cart);
-
-    //     return response()->json(['message' => 'Item removed from cart']);
-    // }
-
     // Method untuk menyimpan data produk
     public function store(Request $request)
     {
